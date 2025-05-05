@@ -1,48 +1,51 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
+import java.util.Properties;
 
 public class Util {
-    private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "Csgoraki228#";
+    private static final Properties jdbcProps = new Properties();
+    private static final SessionFactory sessionFactory;
 
-    private static final String DRIVER = "org.postgresql.Driver";
+    static {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.addProperties(loadHibernateProperties());
+            configuration.addAnnotatedClass(User.class);
+            sessionFactory = configuration.buildSessionFactory();
+        } catch (Throwable ex) {
+            throw new ExceptionInInitializerError(ex.getMessage());
+        }
+    }
 
-
-
-    private static SessionFactory sessionFactory;
-
+    private static Properties loadHibernateProperties() {
+        Properties props = new Properties();
+        try (InputStream input = Util.class.getClassLoader()
+                .getResourceAsStream("hibernate.properties")) {
+            props.load(input);
+            return props;
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при загрузки hibernate.properties", e);
+        }
+    }
 
     public static SessionFactory getSessionFactory() {
-        if (Util.sessionFactory == null) {
-            try {
-                return new Configuration()
-                        .addAnnotatedClass(jm.task.core.jdbc.model.User.class)
-                        .setProperty("hibernate.connection.driver_class", DRIVER)
-                        .setProperty("hibernate.connection.url", URL)
-                        .setProperty("hibernate.connection.username", USER)
-                        .setProperty("hibernate.connection.password", PASSWORD)
-                        .setProperty("hibernate.hbm2ddl.auto", "update")
-                        .buildSessionFactory();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
         return sessionFactory;
     }
 
-
-    public static Connection jdbcGetConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public static Connection getJdbcConnection() throws SQLException {
+        return DriverManager.getConnection(
+                jdbcProps.getProperty("jdbc.url"),
+                jdbcProps.getProperty("jdbc.username"),
+                jdbcProps.getProperty("jdbc.password")
+        );
     }
 }
-
