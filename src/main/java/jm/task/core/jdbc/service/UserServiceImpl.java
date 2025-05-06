@@ -1,43 +1,38 @@
 package jm.task.core.jdbc.service;
 
 import jm.task.core.jdbc.dao.UserDao;
-import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
-import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.model.User;
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
-    private static UserDaoJDBCImpl userDao = new UserDaoJDBCImpl();
-    private static UserDaoHibernateImpl userDaoHibernate = new UserDaoHibernateImpl();
-    //Не разобрался как сделать контроллер, чтобы проходили тесты
-//    private final UserDao userDao;
-//
-//    public UserServiceImpl(UserDao userDao) {
-//        this.userDao = userDao;
-//    }
+    private final UserDao userDao;
+
+    public UserServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
 
     public void createUsersTable() {
-        userDaoHibernate.createUsersTable();
+        userDao.createUsersTable();
     }
 
     public void dropUsersTable() {
-        userDaoHibernate.dropUsersTable();
+        userDao.dropUsersTable();
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        userDaoHibernate.saveUser(name, lastName, age);
+        userDao.saveUser(name, lastName, age);
     }
 
     public void removeUserById(long id) {
-        userDaoHibernate.removeUserById(id);
+        userDao.removeUserById(id);
     }
 
     public List<User> getAllUsers() {
-        return userDaoHibernate.getAllUsers();
+        return userDao.getAllUsers();
     }
 
     public void cleanUsersTable() {
-        userDaoHibernate.cleanUsersTable();
+        userDao.cleanUsersTable();
     }
 }

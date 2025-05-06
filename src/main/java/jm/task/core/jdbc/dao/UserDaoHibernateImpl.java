@@ -12,32 +12,6 @@ import java.util.function.Function;
 public class UserDaoHibernateImpl implements UserDao {
     private static final Logger logger = Logger.getLogger(UserDaoHibernateImpl.class);
 
-    private void doInTransaction(Consumer<Session> action) {
-        Transaction transaction = null;
-        try (Session session = Util.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            action.accept(session);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
-            logger.error("Ошибка при выполнении транзакции", e);
-        }
-    }
-
-    private <T> T doInTransaction(Function<Session, T> action) {
-        Transaction transaction = null;
-        try (Session session = Util.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            T result = action.apply(session);
-            transaction.commit();
-            return result;
-        } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
-            logger.error("Ошибка при выполнении транзакции", e);
-            return null;
-        }
-    }
-
     @Override
     public void createUsersTable() {
         doInTransaction(session -> {
@@ -88,5 +62,31 @@ public class UserDaoHibernateImpl implements UserDao {
             session.createNativeQuery(SQLQueries.TRUNCATE_TABLE).executeUpdate();
             logger.info("Таблица пользователей очищена.");
         });
+    }
+
+    private void doInTransaction(Consumer<Session> action) {
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            action.accept(session);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            logger.error("Ошибка при выполнении транзакции", e);
+        }
+    }
+
+    private <T> T doInTransaction(Function<Session, T> action) {
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            T result = action.apply(session);
+            transaction.commit();
+            return result;
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            logger.error("Ошибка при выполнении транзакции", e);
+            return null;
+        }
     }
 }

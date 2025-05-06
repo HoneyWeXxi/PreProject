@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
-    private static final Properties jdbcProps = new Properties();
+    private static final Properties jdbcProps = loadJdbcProperties();
     private static final SessionFactory sessionFactory;
 
     static {
@@ -47,5 +47,16 @@ public class Util {
                 jdbcProps.getProperty("jdbc.username"),
                 jdbcProps.getProperty("jdbc.password")
         );
+    }
+
+    private static Properties loadJdbcProperties() {
+        Properties props = new Properties();
+        try (InputStream input = Util.class.getClassLoader()
+                .getResourceAsStream("jdbc.properties")) {
+            props.load(input);
+            return props;
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при загрузке jdbc.properties", e);
+        }
     }
 }

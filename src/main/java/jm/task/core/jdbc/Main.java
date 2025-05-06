@@ -7,9 +7,7 @@ import jm.task.core.jdbc.service.UserServiceImpl;
 
 public class Main {
     public static void main(String[] args) {
-        //UserService ser = new UserServiceImpl(new UserDaoJDBCImpl());
-        //UserService ser = new UserServiceImpl(new UserDaoHibernateImpl());
-        UserService ser = new UserServiceImpl();
+        UserService ser = new UserServiceImpl(new UserDaoHibernateImpl());
         ser.createUsersTable();
         ser.saveUser("Матвей","Пересторонин", (byte) 21);
         ser.saveUser("Даниил","Чернов", (byte) 26);
